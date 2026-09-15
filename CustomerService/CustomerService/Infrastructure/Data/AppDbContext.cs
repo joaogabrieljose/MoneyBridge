@@ -1,3 +1,4 @@
+using CustomerService.Domain.Modals;
 using Microsoft.EntityFrameworkCore;
 
 namespace CustomerService.Infrastructure.Data;
@@ -8,5 +9,8 @@ public class AppDbContext : DbContext
     : base(options)
     {
     }
+    
+    public DbSet<Customer>Customers { get; set; }
+    
 
 }
