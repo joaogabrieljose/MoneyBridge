@@ -9,7 +9,7 @@ public class Customer
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int id { get; set; }
+    public int Id { get; set; }
     public int UserId { get; set; }
     public string FullName { get; set; }
     public string Gender { get; set; }
@@ -29,7 +29,7 @@ public class Customer
 
     public Customer(int id, int userId, string fullName, string gender, string email, string nationality, string address, int age, int phoneNumber, string? taxNumber, string? documentNumber, DocumentType? documentType, CustomerStatus status, KycStatus kycStatus, DateTime createdAt, DateTime? updatedAt)
     {
-        this.id = id;
+        this.Id = id;
         UserId = userId;
         FullName = fullName;
         Gender = gender;
