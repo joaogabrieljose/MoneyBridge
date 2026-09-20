@@ -5,13 +5,11 @@ namespace CustomerService.Infrastructure;
 
 public class ConnectionContext : DbContext
 {
-    public DbSet<Customer> Customers { get; set; }
-        
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseNpgsql(
-            "Server=localhost;" +
-            "port=5432;Database=customer_service;"+
-            "User Id=postgres;"+
-            "password=admin123;"); 
-}
+    public ConnectionContext(
+        DbContextOptions<ConnectionContext> options)
+        : base(options)
+    {
+    }
     
+    public DbSet<Customer> Customers { get; set; }
+}

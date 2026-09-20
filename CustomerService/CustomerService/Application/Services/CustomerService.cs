@@ -1,6 +1,7 @@
 using CustomerService.Application.DTOs.Requests;
 using CustomerService.Application.DTOs.Response;
 using CustomerService.Domain.Modals;
+using CustomerService.Domain.Modals.Enums;
 
 namespace CustomerService.Application.Services;
 
@@ -42,10 +43,15 @@ public class CustomerService : ICustomerService
             FullName = request.FullName,
             Gender = request.Gender,
             Email = request.Email,
-            phoneNumber = request.PhoneNumber,
-            TaxNumber = request.TaxNumber,
             Nationality = request.Nationality,
+            phoneNumber = request.PhoneNumber,
+            Address = request.Address,
+            Age = request.Age,
+            TaxNumber = request.TaxNumber,
+            DocumentType = DocumentType.IdentityCard,
             DocumentNumber = request.DocumentNumber,
+            Status = CustomerStatus.Active,
+            KycStatus = KycStatus.Pending,
             CreatedAt = DateTime.UtcNow
         };
 

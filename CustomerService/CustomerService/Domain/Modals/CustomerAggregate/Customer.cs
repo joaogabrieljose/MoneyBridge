@@ -17,7 +17,7 @@ public class Customer
     public string Nationality { get; set; }
     public string Address { get; set; }
     public int Age { get; set; }
-    public int phoneNumber { get; set; }
+    public string phoneNumber { get; set; }
     public string? TaxNumber { get; set; }
     public string? DocumentNumber { get; set; }
     public DocumentType? DocumentType { get; set; }
@@ -27,7 +27,7 @@ public class Customer
     public DateTime? UpdatedAt { get; set; }
     public Customer() { }
 
-    public Customer(int id, int userId, string fullName, string gender, string email, string nationality, string address, int age, int phoneNumber, string? taxNumber, string? documentNumber, DocumentType? documentType, CustomerStatus status, KycStatus kycStatus, DateTime createdAt, DateTime? updatedAt)
+    public Customer(int id, int userId, string fullName, string gender, string email, string nationality, string address, int age, string phoneNumber, string? taxNumber, string? documentNumber, DocumentType? documentType, CustomerStatus status, KycStatus kycStatus, DateTime createdAt, DateTime? updatedAt)
     {
         this.Id = id;
         UserId = userId;

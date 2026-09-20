@@ -16,7 +16,7 @@ public class CustomerResponse
 
     public string Address {get; set; }
 
-    public int? PhoneNumber { get; set; }
+    public string PhoneNumber { get; set; }
     
     public string? TaxNumber { get; set; }
 
