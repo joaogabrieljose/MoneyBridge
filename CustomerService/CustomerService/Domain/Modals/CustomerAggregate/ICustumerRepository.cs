@@ -14,4 +14,6 @@ public interface ICustumerRepository
     Task<bool> ExisteByTaxNumberAsync(string taxNumber);
     Task SaveAsync();
     
+    List<Customer> getPaginatedResult(int pageNumber, int pageSize);
+    
 }

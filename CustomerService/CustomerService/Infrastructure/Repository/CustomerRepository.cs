@@ -1,4 +1,5 @@
 using CustomerService.Domain.Modals;
+using CustomerService.Domain.Modals.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace CustomerService.Infrastructure.Repository;
@@ -6,6 +7,7 @@ namespace CustomerService.Infrastructure.Repository;
 public class CustomerRepository : ICustumerRepository
 {
     private readonly ConnectionContext _context;
+   
 
     public CustomerRepository(ConnectionContext context)
     {
@@ -77,5 +79,30 @@ public class CustomerRepository : ICustumerRepository
     public async Task SaveAsync()
     {
         await _context.SaveChangesAsync();
+    }
+
+    public List<Customer> getPaginatedResult(int pageNumber, int pageQuantity)
+    {
+        return _context.Customers
+            .Skip(pageNumber * pageQuantity)
+            .Take(pageQuantity)
+            .Select(b => new Customer()
+            {
+                Id = b.Id,
+                FullName = b.FullName,
+                Gender = b.Gender,
+                Email = b.Email,
+                Nationality = b.Nationality, 
+                Address = b.Address,
+                Age = b.Age,
+                phoneNumber = b.phoneNumber,
+                TaxNumber = b.TaxNumber,
+                CreatedAt = b.CreatedAt,
+                UpdatedAt = b.UpdatedAt,
+                DocumentType = new DocumentType(),
+                
+            })
+            .ToList();
+        
     }
 }

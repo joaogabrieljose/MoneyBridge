@@ -1,5 +1,6 @@
 using CustomerService.Application.DTOs.Requests;
 using CustomerService.Application.Services;
+using CustomerService.Domain.Modals;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CustomerService.Controllers;
@@ -9,10 +10,12 @@ namespace CustomerService.Controllers;
 public class CustomerController : ControllerBase
 {
     private readonly ICustomerService _customerService;
+    private readonly ICustumerRepository _repository;
 
-    public CustomerController(ICustomerService customerService)
+    public CustomerController(ICustomerService customerService, ICustumerRepository repository)
     {
         _customerService = customerService;
+        _repository = repository;
     }
 
     [HttpPost]
@@ -59,5 +62,15 @@ public class CustomerController : ControllerBase
         await _customerService.DeleteAsync(id);
         return NoContent();
     }
+    
+    // paginação 
+    [HttpGet]
+    [Route("/page")]
+    public IActionResult GetPage(int pageNumber, int pageQuantity)
+    {
+        var Customer = _repository.getPaginatedResult(pageNumber, pageQuantity);
+        return Ok(Customer);
+    }
+
 
 }
