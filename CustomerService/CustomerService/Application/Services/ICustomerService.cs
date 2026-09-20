@@ -1,16 +1,18 @@
+using CustomerService.Application.DTOs.Requests;
+using CustomerService.Application.DTOs.Response;
 using CustomerService.Domain.Modals;
 
 namespace CustomerService.Application.Services;
 
 public interface ICustomerService
 {
-    Task<Customer> CreateAsync(Customer customer);
+    Task<CustomerResponse> CreateAsync(CreateCustomerRequest customer);
 
-    Task<Customer?> GetByIdAsync(int id);
+    Task<CustomerResponse?> GetByIdAsync(int id);
 
-    Task<List<Customer>> GetAllAsync();
+    Task<List<CustomerResponse>> GetAllAsync();
 
-    Task<Customer> UpdateAsync(int id, Customer customer);
+    Task<CustomerResponse> UpdateAsync(int id, UpdateCustomerRequest customer);
 
     Task DeleteAsync(int id);
 }

@@ -2,16 +2,20 @@ namespace CustomerService.Application.DTOs.Requests;
 
 public class UpdateCustomerRequest
 {
-    public string FirstName { get; set; } = null!;
+    public string FullName { get; set; } = null!;
 
-    public string LastName { get; set; } = null!;
+    public string Gender { get; set; } = null!;
+
+    public string  Email { get; set; }
 
     public string? Nationality { get; set; }
 
-    public string Email { get; set; } = null!;
+    public int PhoneNumber { get; set; }
 
-    public string? PhoneNumber { get; set; }
-
+    public string Address { get; set;  }
+    
+    public int Age { get; set; }
+    
     public string? TaxNumber { get; set; }
 
     public string? DocumentNumber { get; set; }
