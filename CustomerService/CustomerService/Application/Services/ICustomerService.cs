@@ -1,21 +1,29 @@
 using CustomerService.Application.DTOs.Requests;
 using CustomerService.Application.DTOs.Response;
-using CustomerService.Domain.Modals;
+
+using ResultPattern =
+    global::CustomerService.Application.Common.Results;
 
 namespace CustomerService.Application.Services;
 
 public interface ICustomerService
 {
-    Task<CustomerResponse> CreateAsync(CreateCustomerRequest customer);
+    Task<ResultPattern.Results<CustomerResponse>> CreateAsync(
+        CreateCustomerRequest customer);
 
-    Task<CustomerResponse?> GetByIdAsync(int id);
+    Task<ResultPattern.Results<CustomerResponse>> GetByIdAsync(
+        int id);
 
-    Task<List<CustomerResponse>> GetAllAsync();
+    Task<ResultPattern.Results<List<CustomerResponse>>> GetAllAsync();
 
-    Task<CustomerResponse> UpdateAsync(int id, UpdateCustomerRequest customer);
+    Task<ResultPattern.Results<CustomerResponse>> UpdateAsync(
+        int id,
+        UpdateCustomerRequest customer);
 
-    Task DeleteAsync(int id);
-    
-    Task<List<CustomerResponse>> GetPaginatedResultAsync(int pageNumber, int pageSize);
-    
+    Task<ResultPattern.Result> DeleteAsync(
+        int id);
+
+    Task<ResultPattern.Results<List<CustomerResponse>>> GetPaginatedResultAsync(
+        int pageNumber,
+        int pageSize);
 }

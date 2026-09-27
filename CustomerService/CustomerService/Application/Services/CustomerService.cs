@@ -5,6 +5,8 @@ using CustomerService.Domain.Modals.Enums;
 using CustomerService.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
+using ResultPattern = global::CustomerService.Application.Common.Results;
+
 namespace CustomerService.Application.Services;
 
 public class CustomerService : ICustomerService
@@ -16,15 +18,21 @@ public class CustomerService : ICustomerService
         _connectionContext = connectionContext;
     }
 
-    public async Task<CustomerResponse> CreateAsync(CreateCustomerRequest request)
+    // ============================================================
+    // CREATE
+    // ============================================================
+
+    public async Task<ResultPattern.Results<CustomerResponse>> CreateAsync(
+        CreateCustomerRequest request)
     {
         var emailExists = await _connectionContext.Customers
             .AnyAsync(c => c.Email == request.Email);
 
         if (emailExists)
         {
-            throw new InvalidOperationException(
-                "Já existe um cliente com esse email.");
+            return ResultPattern.Results<CustomerResponse>.Failure(
+                ResultPattern.CustomerErrors.EmailAlreadyExists(
+                    request.Email));
         }
 
         if (!string.IsNullOrWhiteSpace(request.TaxNumber))
@@ -34,8 +42,9 @@ public class CustomerService : ICustomerService
 
             if (taxNumberExists)
             {
-                throw new InvalidOperationException(
-                    "Já existe um cliente com esse número fiscal.");
+                return ResultPattern.Results<CustomerResponse>.Failure(
+                    ResultPattern.CustomerErrors.TaxNumberAlreadyExists(
+                        request.TaxNumber));
             }
         }
 
@@ -44,7 +53,7 @@ public class CustomerService : ICustomerService
             FullName = request.FullName,
             Gender = request.Gender,
             Email = request.Email,
-            Nationality = request.Nationality,
+            Nationality = request.Nationality ?? string.Empty,
             phoneNumber = request.PhoneNumber,
             Address = request.Address,
             Age = request.Age,
@@ -61,48 +70,85 @@ public class CustomerService : ICustomerService
 
         await _connectionContext.SaveChangesAsync();
 
-        return MapToResponse(customer);
+        var response = MapToResponse(customer);
+
+        return ResultPattern.Results<CustomerResponse>.Success(response);
     }
 
-    public async Task<CustomerResponse?> GetByIdAsync(int id)
+    // ============================================================
+    // GET BY ID
+    // ============================================================
+
+    public async Task<ResultPattern.Results<CustomerResponse>> GetByIdAsync(
+        int id)
     {
+        if (id <= 0)
+        {
+            return ResultPattern.Results<CustomerResponse>.Failure(
+                ResultPattern.CustomerErrors.InvalidId(id));
+        }
+
         var customer = await _connectionContext.Customers
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Id == id);
 
         if (customer is null)
         {
-            return null;
+            return ResultPattern.Results<CustomerResponse>.Failure(
+                ResultPattern.CustomerErrors.NotFound(id));
         }
 
-        return MapToResponse(customer);
+        var response = MapToResponse(customer);
+
+        return ResultPattern.Results<CustomerResponse>.Success(response);
     }
 
-    public async Task<List<CustomerResponse>> GetAllAsync()
+    // ============================================================
+    // GET ALL
+    // ============================================================
+
+    public async Task<ResultPattern.Results<List<CustomerResponse>>> GetAllAsync()
     {
         var customers = await _connectionContext.Customers
             .AsNoTracking()
             .OrderBy(c => c.Id)
             .ToListAsync();
 
-        return customers
+        var response = customers
             .Select(MapToResponse)
             .ToList();
+
+        return ResultPattern.Results<List<CustomerResponse>>
+            .Success(response);
     }
 
-    public async Task<CustomerResponse> UpdateAsync(
+    // ============================================================
+    // UPDATE
+    // ============================================================
+
+    public async Task<ResultPattern.Results<CustomerResponse>> UpdateAsync(
         int id,
         UpdateCustomerRequest request)
     {
+        if (id <= 0)
+        {
+            return ResultPattern.Results<CustomerResponse>.Failure(
+                ResultPattern.CustomerErrors.InvalidId(id));
+        }
+
         var existingCustomer = await _connectionContext.Customers
             .FirstOrDefaultAsync(c => c.Id == id);
 
         if (existingCustomer is null)
         {
-            throw new KeyNotFoundException(
-                $"Cliente com ID {id} não encontrado.");
+            return ResultPattern.Results<CustomerResponse>.Failure(
+                ResultPattern.CustomerErrors.NotFound(id));
         }
 
+        /*
+         * Se o email foi alterado, verificamos se já existe
+         * noutro Customer.
+         */
         if (existingCustomer.Email != request.Email)
         {
             var emailExists = await _connectionContext.Customers
@@ -112,13 +158,19 @@ public class CustomerService : ICustomerService
 
             if (emailExists)
             {
-                throw new InvalidOperationException(
-                    "Já existe outro cliente com esse email.");
+                return ResultPattern.Results<CustomerResponse>.Failure(
+                    ResultPattern.CustomerErrors.EmailAlreadyExists(
+                        request.Email));
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(request.TaxNumber)
-            && existingCustomer.TaxNumber != request.TaxNumber)
+        /*
+         * Mesma regra para TaxNumber.
+         *
+         * Ignoramos TaxNumber vazio porque o campo é opcional.
+         */
+        if (!string.IsNullOrWhiteSpace(request.TaxNumber) &&
+            existingCustomer.TaxNumber != request.TaxNumber)
         {
             var taxNumberExists = await _connectionContext.Customers
                 .AnyAsync(c =>
@@ -127,8 +179,9 @@ public class CustomerService : ICustomerService
 
             if (taxNumberExists)
             {
-                throw new InvalidOperationException(
-                    "Já existe outro cliente com esse número fiscal.");
+                return ResultPattern.Results<CustomerResponse>.Failure(
+                    ResultPattern.CustomerErrors.TaxNumberAlreadyExists(
+                        request.TaxNumber));
             }
         }
 
@@ -137,45 +190,73 @@ public class CustomerService : ICustomerService
         existingCustomer.Email = request.Email;
         existingCustomer.phoneNumber = request.PhoneNumber;
         existingCustomer.TaxNumber = request.TaxNumber;
-        existingCustomer.Nationality = request.Nationality;
-        existingCustomer.DocumentNumber = request.DocumentNumber;
+        existingCustomer.Nationality =
+            request.Nationality ?? string.Empty;
+        existingCustomer.DocumentNumber =
+            request.DocumentNumber;
+
         existingCustomer.UpdatedAt = DateTime.UtcNow;
 
         await _connectionContext.SaveChangesAsync();
 
-        return MapToResponse(existingCustomer);
+        var response = MapToResponse(existingCustomer);
+
+        return ResultPattern.Results<CustomerResponse>.Success(response);
     }
 
-    public async Task DeleteAsync(int id)
+    // ============================================================
+    // DELETE
+    // ============================================================
+
+    public async Task<ResultPattern.Result> DeleteAsync(int id)
     {
+        if (id <= 0)
+        {
+            return ResultPattern.Result.Failure(
+                ResultPattern.CustomerErrors.InvalidId(id));
+        }
+
         var customer = await _connectionContext.Customers
             .FirstOrDefaultAsync(c => c.Id == id);
 
         if (customer is null)
         {
-            throw new KeyNotFoundException(
-                $"Cliente com ID {id} não encontrado.");
+            return ResultPattern.Result.Failure(
+                ResultPattern.CustomerErrors.NotFound(id));
         }
 
         _connectionContext.Customers.Remove(customer);
 
         await _connectionContext.SaveChangesAsync();
+
+        return ResultPattern.Result.Success();
     }
 
-    public async Task<List<CustomerResponse>> GetPaginatedResultAsync(
-        int pageNumber,
-        int pageSize)
+    // ============================================================
+    // PAGINATION
+    // ============================================================
+
+    public async Task<ResultPattern.Results<List<CustomerResponse>>>
+        GetPaginatedResultAsync(
+            int pageNumber,
+            int pageSize)
     {
         if (pageNumber <= 0)
         {
-            throw new ArgumentException(
-                "PageNumber deve ser superior a zero.");
+            return ResultPattern
+                .Results<List<CustomerResponse>>
+                .Failure(
+                    ResultPattern.CustomerErrors.InvalidPageNumber(
+                        pageNumber));
         }
 
         if (pageSize <= 0)
         {
-            throw new ArgumentException(
-                "PageSize deve ser superior a zero.");
+            return ResultPattern
+                .Results<List<CustomerResponse>>
+                .Failure(
+                    ResultPattern.CustomerErrors.InvalidPageSize(
+                        pageSize));
         }
 
         var customers = await _connectionContext.Customers
@@ -185,12 +266,21 @@ public class CustomerService : ICustomerService
             .Take(pageSize)
             .ToListAsync();
 
-        return customers
+        var response = customers
             .Select(MapToResponse)
             .ToList();
+
+        return ResultPattern
+            .Results<List<CustomerResponse>>
+            .Success(response);
     }
 
-    private static CustomerResponse MapToResponse(Customer customer)
+    // ============================================================
+    // MAPPER
+    // ============================================================
+
+    private static CustomerResponse MapToResponse(
+        Customer customer)
     {
         return new CustomerResponse
         {
@@ -198,9 +288,10 @@ public class CustomerService : ICustomerService
             FullName = customer.FullName,
             Gender = customer.Gender,
             Email = customer.Email,
+            Nationality = customer.Nationality,
+            Address = customer.Address,
             PhoneNumber = customer.phoneNumber,
             TaxNumber = customer.TaxNumber,
-            Nationality = customer.Nationality,
             Status = customer.Status,
             KycStatus = customer.KycStatus,
             CreatedAt = customer.CreatedAt,
