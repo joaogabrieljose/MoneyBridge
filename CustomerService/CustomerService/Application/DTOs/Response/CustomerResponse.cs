@@ -1,3 +1,4 @@
+using CustomerService.Domain.Modals;
 using CustomerService.Domain.Modals.Enums;
 
 namespace CustomerService.Application.DTOs.Response;
@@ -27,4 +28,5 @@ public class CustomerResponse
     public DateTime CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
+    
 }

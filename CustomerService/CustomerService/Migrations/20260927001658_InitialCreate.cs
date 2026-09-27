@@ -4,10 +4,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace CustomerService.Migrations.Connection
+namespace CustomerService.Migrations
 {
     /// <inheritdoc />
-    public partial class AddUserIdToCustomer : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -25,7 +25,7 @@ namespace CustomerService.Migrations.Connection
                     Nationality = table.Column<string>(type: "text", nullable: false),
                     Address = table.Column<string>(type: "text", nullable: false),
                     Age = table.Column<int>(type: "integer", nullable: false),
-                    phoneNumber = table.Column<int>(type: "integer", nullable: false),
+                    phoneNumber = table.Column<string>(type: "text", nullable: false),
                     TaxNumber = table.Column<string>(type: "text", nullable: true),
                     DocumentNumber = table.Column<string>(type: "text", nullable: true),
                     DocumentType = table.Column<int>(type: "integer", nullable: true),

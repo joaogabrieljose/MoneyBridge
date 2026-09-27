@@ -2,24 +2,26 @@ using CustomerService.Application.DTOs.Requests;
 using CustomerService.Application.DTOs.Response;
 using CustomerService.Domain.Modals;
 using CustomerService.Domain.Modals.Enums;
+using CustomerService.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace CustomerService.Application.Services;
 
 public class CustomerService : ICustomerService
 {
-    private readonly ICustumerRepository _customerRepository;
+    private readonly ConnectionContext _connectionContext;
 
-    public CustomerService(ICustumerRepository customerRepository)
+    public CustomerService(ConnectionContext connectionContext)
     {
-        _customerRepository = customerRepository;
+        _connectionContext = connectionContext;
     }
 
     public async Task<CustomerResponse> CreateAsync(CreateCustomerRequest request)
     {
-        var emailExists =
-            await _customerRepository.GetByEmailAsync(request.Email);
+        var emailExists = await _connectionContext.Customers
+            .AnyAsync(c => c.Email == request.Email);
 
-        if (emailExists is not null)
+        if (emailExists)
         {
             throw new InvalidOperationException(
                 "Já existe um cliente com esse email.");
@@ -27,11 +29,10 @@ public class CustomerService : ICustomerService
 
         if (!string.IsNullOrWhiteSpace(request.TaxNumber))
         {
-            var taxNumberExists =
-                await _customerRepository
-                    .GetByTaxNumberAsync(request.TaxNumber);
+            var taxNumberExists = await _connectionContext.Customers
+                .AnyAsync(c => c.TaxNumber == request.TaxNumber);
 
-            if (taxNumberExists is not null)
+            if (taxNumberExists)
             {
                 throw new InvalidOperationException(
                     "Já existe um cliente com esse número fiscal.");
@@ -50,22 +51,24 @@ public class CustomerService : ICustomerService
             TaxNumber = request.TaxNumber,
             DocumentType = DocumentType.IdentityCard,
             DocumentNumber = request.DocumentNumber,
+
             Status = CustomerStatus.Active,
             KycStatus = KycStatus.Pending,
             CreatedAt = DateTime.UtcNow
         };
 
-        await _customerRepository.AddAsync(customer);
+        await _connectionContext.Customers.AddAsync(customer);
 
-        await _customerRepository.SaveAsync();
+        await _connectionContext.SaveChangesAsync();
 
         return MapToResponse(customer);
     }
 
     public async Task<CustomerResponse?> GetByIdAsync(int id)
     {
-        var customer =
-            await _customerRepository.GetByIdAsync(id);
+        var customer = await _connectionContext.Customers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == id);
 
         if (customer is null)
         {
@@ -77,8 +80,10 @@ public class CustomerService : ICustomerService
 
     public async Task<List<CustomerResponse>> GetAllAsync()
     {
-        var customers =
-            await _customerRepository.GetAllAsync();
+        var customers = await _connectionContext.Customers
+            .AsNoTracking()
+            .OrderBy(c => c.Id)
+            .ToListAsync();
 
         return customers
             .Select(MapToResponse)
@@ -89,8 +94,8 @@ public class CustomerService : ICustomerService
         int id,
         UpdateCustomerRequest request)
     {
-        var existingCustomer =
-            await _customerRepository.GetByIdAsync(id);
+        var existingCustomer = await _connectionContext.Customers
+            .FirstOrDefaultAsync(c => c.Id == id);
 
         if (existingCustomer is null)
         {
@@ -100,10 +105,12 @@ public class CustomerService : ICustomerService
 
         if (existingCustomer.Email != request.Email)
         {
-            var emailExists =
-                await _customerRepository.GetByEmailAsync(request.Email);
+            var emailExists = await _connectionContext.Customers
+                .AnyAsync(c =>
+                    c.Email == request.Email &&
+                    c.Id != id);
 
-            if (emailExists is not null)
+            if (emailExists)
             {
                 throw new InvalidOperationException(
                     "Já existe outro cliente com esse email.");
@@ -113,11 +120,12 @@ public class CustomerService : ICustomerService
         if (!string.IsNullOrWhiteSpace(request.TaxNumber)
             && existingCustomer.TaxNumber != request.TaxNumber)
         {
-            var taxNumberExists =
-                await _customerRepository
-                    .GetByTaxNumberAsync(request.TaxNumber);
+            var taxNumberExists = await _connectionContext.Customers
+                .AnyAsync(c =>
+                    c.TaxNumber == request.TaxNumber &&
+                    c.Id != id);
 
-            if (taxNumberExists is not null)
+            if (taxNumberExists)
             {
                 throw new InvalidOperationException(
                     "Já existe outro cliente com esse número fiscal.");
@@ -133,17 +141,15 @@ public class CustomerService : ICustomerService
         existingCustomer.DocumentNumber = request.DocumentNumber;
         existingCustomer.UpdatedAt = DateTime.UtcNow;
 
-        _customerRepository.Update(existingCustomer);
-
-        await _customerRepository.SaveAsync();
+        await _connectionContext.SaveChangesAsync();
 
         return MapToResponse(existingCustomer);
     }
 
     public async Task DeleteAsync(int id)
     {
-        var customer =
-            await _customerRepository.GetByIdAsync(id);
+        var customer = await _connectionContext.Customers
+            .FirstOrDefaultAsync(c => c.Id == id);
 
         if (customer is null)
         {
@@ -151,9 +157,37 @@ public class CustomerService : ICustomerService
                 $"Cliente com ID {id} não encontrado.");
         }
 
-        _customerRepository.Delete(customer);
+        _connectionContext.Customers.Remove(customer);
 
-        await _customerRepository.SaveAsync();
+        await _connectionContext.SaveChangesAsync();
+    }
+
+    public async Task<List<CustomerResponse>> GetPaginatedResultAsync(
+        int pageNumber,
+        int pageSize)
+    {
+        if (pageNumber <= 0)
+        {
+            throw new ArgumentException(
+                "PageNumber deve ser superior a zero.");
+        }
+
+        if (pageSize <= 0)
+        {
+            throw new ArgumentException(
+                "PageSize deve ser superior a zero.");
+        }
+
+        var customers = await _connectionContext.Customers
+            .AsNoTracking()
+            .OrderBy(c => c.Id)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return customers
+            .Select(MapToResponse)
+            .ToList();
     }
 
     private static CustomerResponse MapToResponse(Customer customer)
@@ -162,7 +196,7 @@ public class CustomerService : ICustomerService
         {
             Id = customer.Id,
             FullName = customer.FullName,
-            Gender = customer.Gender.ToString(),
+            Gender = customer.Gender,
             Email = customer.Email,
             PhoneNumber = customer.phoneNumber,
             TaxNumber = customer.TaxNumber,

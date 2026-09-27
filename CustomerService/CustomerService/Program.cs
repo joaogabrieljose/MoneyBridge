@@ -1,7 +1,6 @@
 using CustomerService.Application.Services;
 using CustomerService.Domain.Modals;
 using CustomerService.Infrastructure;
-using CustomerService.Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,13 +9,15 @@ builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
 
+// injeção de dependencia 
+
 builder.Services.AddDbContext<ConnectionContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection")
     )
 );
 
-builder.Services.AddScoped<ICustumerRepository, CustomerRepository>();
+
 
 builder.Services.AddScoped<
     ICustomerService,

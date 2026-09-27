@@ -13,7 +13,7 @@ public interface ICustumerRepository
     Task<bool> ExistByEmailAsync(string email);
     Task<bool> ExisteByTaxNumberAsync(string taxNumber);
     Task SaveAsync();
+    Task<List<Customer>> GetPaginatedResultAsync(int pageNumber, int pageSize);
     
-    List<Customer> getPaginatedResult(int pageNumber, int pageSize);
     
 }

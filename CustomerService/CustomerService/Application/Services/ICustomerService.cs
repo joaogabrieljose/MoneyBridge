@@ -15,4 +15,7 @@ public interface ICustomerService
     Task<CustomerResponse> UpdateAsync(int id, UpdateCustomerRequest customer);
 
     Task DeleteAsync(int id);
+    
+    Task<List<CustomerResponse>> GetPaginatedResultAsync(int pageNumber, int pageSize);
+    
 }

@@ -9,11 +9,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace CustomerService.Migrations.Connection
+namespace CustomerService.Migrations
 {
     [DbContext(typeof(ConnectionContext))]
-    [Migration("20260920025008_AddUserIdToCustomer")]
-    partial class AddUserIdToCustomer
+    [Migration("20260927001658_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -80,8 +80,9 @@ namespace CustomerService.Migrations.Connection
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("phoneNumber")
-                        .HasColumnType("integer");
+                    b.Property<string>("phoneNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
