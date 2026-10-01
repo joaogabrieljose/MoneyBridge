@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "bG9YMjCDH58=",
+  "success": true,
+  "projectFilePath": "/Users/programacao/dotNET/MoneyBridge/walletservice/walletservice/walletservice.csproj",
+  "expectedPackageFiles": [
+    "/Users/user/.nuget/packages/microsoft.aspnetcore.openapi/10.0.11/microsoft.aspnetcore.openapi.10.0.11.nupkg.sha512",
+    "/Users/user/.nuget/packages/microsoft.openapi/2.7.5/microsoft.openapi.2.7.5.nupkg.sha512",
+    "/Users/user/.nuget/packages/system.text.json/8.0.5/system.text.json.8.0.5.nupkg.sha512"
+  ],
+  "logs": []
+}
