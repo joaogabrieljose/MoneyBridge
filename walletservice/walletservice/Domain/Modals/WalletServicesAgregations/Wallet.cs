@@ -4,6 +4,7 @@ using walletservice.Domain.Modals.Enums;
 
 namespace walletservice.Domain.Modals.WalletServicesAgregations;
 
+[Table("wallets")]
 public class Wallet
 {
     [Key]
@@ -28,7 +29,7 @@ public class Wallet
     
     public DateTime? BlockedAt { get; set; }
 
-    public Wallet(int id, int customerId,  decimal balance, string currency, WalletStatus status,  decimal transactionLimit, DateTime createdAt, DateTime? updatedAt, DateTime? blockedAt )
+    public Wallet(long id, long customerId,  decimal balance, string currency, WalletStatus status,  decimal transactionLimit, DateTime createdAt, DateTime? updatedAt, DateTime? blockedAt )
     {
         Id = id;
         CustomerId = customerId;
