@@ -1,6 +1,6 @@
 namespace walletservice.Domain.Modals.WalletServicesAgregations;
 
-public interface IWalletsRepository
+public interface IWalletMovimentRepository
 {
     Task<Wallet?> GetByIdAsync(long id);
 
@@ -8,13 +8,13 @@ public interface IWalletsRepository
 
     Task<List<Wallet>> GetAllAsync();
 
+    Task<bool> ExistsByCustomerIdAsync(long customerId);
+
     Task AddAsync(Wallet wallet);
 
     void Update(Wallet wallet);
 
     void Delete(Wallet wallet);
-
-    Task<bool> ExistsByCustomerIdAsync(long customerId);
 
     Task SaveAsync();
 }
