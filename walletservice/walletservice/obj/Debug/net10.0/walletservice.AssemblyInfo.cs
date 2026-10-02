@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("walletservice")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a036e0d16faa7fdc9f07114f80baecc3dc105545")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6d7ea89de0d70e63ebd6169a37a55da1af241df8")]
 [assembly: System.Reflection.AssemblyProductAttribute("walletservice")]
 [assembly: System.Reflection.AssemblyTitleAttribute("walletservice")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
