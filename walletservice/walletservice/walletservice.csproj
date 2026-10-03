@@ -18,7 +18,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Application\" />
+      <Folder Include="Application\Common\" />
+      <Folder Include="Application\DTOs\Requests\" />
+      <Folder Include="Application\DTOs\Responses\" />
+      <Folder Include="Application\services\" />
     </ItemGroup>
 
 </Project>

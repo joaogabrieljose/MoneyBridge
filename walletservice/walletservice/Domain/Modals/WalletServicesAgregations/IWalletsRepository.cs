@@ -1,20 +1,11 @@
+using walletservice.Infra.Data;
+
 namespace walletservice.Domain.Modals.WalletServicesAgregations;
 
-public interface IWalletsRepository
+public interface IWalletsRepository : IGenericRepository<Wallet>
 {
-    Task<Wallet?> GetByIdAsync(long id);
-
     Task<Wallet?> GetByCustomerIdAsync(long customerId);
-
-    Task<List<Wallet>> GetAllAsync();
-
-    Task AddAsync(Wallet wallet);
-
-    void Update(Wallet wallet);
-
-    void Delete(Wallet wallet);
-
+    
     Task<bool> ExistsByCustomerIdAsync(long customerId);
-
-    Task SaveAsync();
+    
 }
