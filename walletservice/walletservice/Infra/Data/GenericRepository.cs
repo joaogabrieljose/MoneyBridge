@@ -41,9 +41,5 @@ public abstract class GenericRepository<T> : IDisposable, IGenericRepository<T> 
     {
         _context.Set<T>().Remove(entity);
     }
-
-    public async Task SaveAsync()
-    {
-        await _context.SaveChangesAsync();
-    }
+    
 }
