@@ -22,5 +22,7 @@ public interface IWalletsServices
 
     Task<WalletResponse> UpdateLimitsAsync(long walletId, WalletRequest request);
 
-    Task<List<WalletMovimentoResponse>> GetStatementAsync(long walletId);
+    Task<WalletResponse> CreditAsync(long walletId, WalletMovimentoRequest request);
+
+    Task<WalletResponse> DebitAsync(long walletId, WalletMovimentoRequest request);
 }

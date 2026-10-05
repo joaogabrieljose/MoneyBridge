@@ -102,7 +102,6 @@ public class WalletService : IWalletsServices
         {
             throw new KeyNotFoundException($"Carteira com ID {walletId} não encontrada.");
         }
-
         return wallet.Balance;
     }
 
