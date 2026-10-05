@@ -28,6 +28,8 @@ public class Wallet
     public DateTime? UpdatedAt { get; set; }
     
     public DateTime? BlockedAt { get; set; }
+    
+    public Wallet(){}
 
     public Wallet(long id, long customerId,  decimal balance, string currency, WalletStatus status,  decimal transactionLimit, DateTime createdAt, DateTime? updatedAt, DateTime? blockedAt )
     {
